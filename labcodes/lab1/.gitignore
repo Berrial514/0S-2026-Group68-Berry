@@ -1,0 +1,11 @@
+# 编译产物
+obj/
+bin/
+
+# 编辑器/系统文件
+.vscode/
+*.swp
+.DS_Store
+
+# 日志
+*.log
