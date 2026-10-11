@@ -1,0 +1,54 @@
+
+fib-hand.o:     file format elf64-littleriscv
+
+
+Disassembly of section .text:
+
+0000000000000000 <main>:
+   0:	7179                	addi	sp,sp,-48
+   2:	f406                	sd	ra,40(sp)
+   4:	f022                	sd	s0,32(sp)
+   6:	ec26                	sd	s1,24(sp)
+   8:	e84a                	sd	s2,16(sp)
+   a:	e44e                	sd	s3,8(sp)
+   c:	00000517          	auipc	a0,0x0
+  10:	00050513          	mv	a0,a0
+  14:	858a                	mv	a1,sp
+  16:	00000097          	auipc	ra,0x0
+  1a:	000080e7          	jalr	ra # 16 <main+0x16>
+  1e:	4402                	lw	s0,0(sp)
+  20:	4481                	li	s1,0
+  22:	4905                	li	s2,1
+  24:	4985                	li	s3,1
+  26:	00000517          	auipc	a0,0x0
+  2a:	00050513          	mv	a0,a0
+  2e:	85a6                	mv	a1,s1
+  30:	00000097          	auipc	ra,0x0
+  34:	000080e7          	jalr	ra # 30 <main+0x30>
+  38:	00000517          	auipc	a0,0x0
+  3c:	00050513          	mv	a0,a0
+  40:	85ca                	mv	a1,s2
+  42:	00000097          	auipc	ra,0x0
+  46:	000080e7          	jalr	ra # 42 <main+0x42>
+
+000000000000004a <loop>:
+  4a:	0289d163          	bge	s3,s0,6c <done>
+  4e:	82ca                	mv	t0,s2
+  50:	0124893b          	addw	s2,s1,s2
+  54:	8496                	mv	s1,t0
+  56:	00000517          	auipc	a0,0x0
+  5a:	00050513          	mv	a0,a0
+  5e:	85ca                	mv	a1,s2
+  60:	00000097          	auipc	ra,0x0
+  64:	000080e7          	jalr	ra # 60 <loop+0x16>
+  68:	2985                	addiw	s3,s3,1
+  6a:	b7c5                	j	4a <loop>
+
+000000000000006c <done>:
+  6c:	70a2                	ld	ra,40(sp)
+  6e:	7402                	ld	s0,32(sp)
+  70:	64e2                	ld	s1,24(sp)
+  72:	6942                	ld	s2,16(sp)
+  74:	69a2                	ld	s3,8(sp)
+  76:	6145                	addi	sp,sp,48
+  78:	8082                	ret
