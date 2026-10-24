@@ -34,7 +34,7 @@ static void check_alloc_page(void);
 
 // init_pmm_manager - initialize a pmm_manager instance
 static void init_pmm_manager(void) {
-    pmm_manager = &default_pmm_manager;
+    pmm_manager = &best_fit_pmm_manager;
     cprintf("memory management: %s\n", pmm_manager->name);
     pmm_manager->init();
 }
@@ -64,6 +64,37 @@ size_t nr_free_pages(void) {
 //lab2 function1 YOUR CODE
 
 /* pmm_init - initialize the physical memory management */
+static void
+page_init(void) {
+    uint64_t mem_base = get_memory_base();
+    uint64_t mem_size = get_memory_size();
+    if (mem_base == 0 || mem_size == 0) { panic("page_init: invalid memory info"); }
+    va_pa_offset = PHYSICAL_MEMORY_OFFSET;
+    uint64_t mem_end = mem_base + mem_size;
+    npage = PPN(mem_end);
+
+    extern char end[];
+    uintptr_t end_pa = PADDR((uintptr_t)end);
+    uintptr_t pages_pa = ROUNDUP(end_pa, PGSIZE);
+    pages = (struct Page *)(pages_pa + va_pa_offset);
+
+    for (size_t i = nbase; i < npage; i++) { 
+        SetPageReserved(pages + (i - nbase)); 
+    }
+
+    uintptr_t pages_end_pa = pages_pa + (npage - nbase) * sizeof(struct Page);
+    uintptr_t free_start_pa = ROUNDUP(pages_end_pa, PGSIZE);
+    size_t free_start_ppn = PPN(free_start_pa);
+
+    if (free_start_ppn >= npage) { 
+        panic("no available memory"); 
+    }
+    size_t free_pages = npage - free_start_ppn;
+    init_memmap(pa2page(free_start_pa), free_pages);
+
+    cprintf("physical memory map:\n  memory: 0x%016lx, [0x%016lx, 0x%016lx].\n", mem_size, mem_base, mem_end - 1);
+}
+
 void pmm_init(void) {
     // We need to alloc/free the physical memory (granularity is 4KB or other size).
     // So a framework of physical memory manager (struct pmm_manager)is defined in pmm.h
